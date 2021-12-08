@@ -12,8 +12,17 @@ function generateRandomString() {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
+};
+
+function checkIfRegistered(email) {
+  for (let user in users) {
+    if (email === users[user].email) {
+      return true
+    }
+  }
 }
 
+// Global Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -130,12 +139,18 @@ app.post("/register", (req, res) => {
   const userID = generateRandomString();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  users[userID] = {
-    id: userID,
-    email: userEmail,
-    password: userPassword
-  };
-  console.log(users);
+  if (userEmail === '' || !userEmail || userPassword === '' || !userPassword) {
+    res.send(400, "Invalid Username or Password");
+  } else if (checkIfRegistered(userEmail)){
+    res.send(400, "Account already exists");
+  }
+  else(
+    users[userID] = {
+      id: userID,
+      email: userEmail,
+      password: userPassword
+    }
+  );
   res.cookie('user_id', userID);
   res.redirect('/urls');
 })
