@@ -45,10 +45,10 @@ const urlDatabase = {
 };
 
 const users = { 
-  "userRandomID": {
+  "aJ48lW": {
     id: "aJ48lW", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "1234"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -145,20 +145,26 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.cookies["user_id"];
-  const userDatabase = urlsForUser(userID);
-  if (!userID) {
-    res.send(401);
-  } else {
+  const userUrls = urlsForUser(userID);
+  if (Object.keys(userUrls).includes(req.params.shortURL)) {
     const shortURL = req.params.shortURL;
-    delete userDatabase[shortURL];
+    delete urlDatabase[shortURL];
     res.redirect('/urls');
+  } else {
+    res.send(401);
   }
 });
 
 app.post("/urls/:id", (req, res) => {
-  const shortURL = req.params.id
-  urlDatabase[shortURL] = req.body.newURL;
-  res.redirect(`/urls`);
+  const userID = req.cookies["user_id"];
+  const userUrls = urlsForUser(userID);
+  if (Object.keys(userUrls).includes(req.params.id)) {
+    const shortURL = req.params.id;
+    urlDatabase[shortURL].longURL = req.body.newURL;
+    res.redirect('/urls');
+  } else {
+    res.send(401);
+  }
 });
 
 app.post("/login", (req, res) => {
