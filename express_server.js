@@ -17,7 +17,7 @@ function generateRandomString() {
 function checkIfRegistered(email) {
   for (let user in users) {
     if (email === users[user].email) {
-      return true;
+      return users[user].id;
     }
   } return false;
 }
@@ -164,17 +164,15 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  if (!checkIfRegistered(userEmail)) {
+  const userID = checkIfRegistered(userEmail);
+  if (!userID) {
     res.send(403, "Unregistered email address");
-  } else if (checkIfRegistered(userEmail)) {
-    for (let user in users) {
-      if (userPassword === users[user].password) {
-        const userID = users[user].id;
-        res.cookie('user_id', userID);
-        res.redirect('/urls');
-      } else {
-        res.send(403, "Invalid password, try again.")
-      }
+  } else {
+    if (userPassword !== users[userID].password) {
+      res.send(403, "Invalid password, try again");
+    } else {
+      res.cookie('user_id', userID);
+      res.redirect("/urls");
     }
   }
 });
