@@ -132,13 +132,25 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
-  res.redirect('/urls');
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  if (!checkIfRegistered(userEmail)) {
+    res.send(403, "Unregistered email address");
+  } else if (checkIfRegistered(userEmail)) {
+    for (let user in users) {
+      if (userPassword === users[user].password) {
+        const userID = users[user].id;
+        res.cookie('user_id', userID);
+        res.redirect('/urls');
+      } else {
+        res.send(403, "Invalid paassword, try again.")
+      }
+    }
+  }
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -161,7 +173,3 @@ app.post("/register", (req, res) => {
   res.cookie('user_id', userID);
   res.redirect('/urls');
 });
-
-app.post("/login", (req, rest) => {
-  res.redirect('/urls');
-})
