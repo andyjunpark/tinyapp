@@ -5,33 +5,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcryptjs');
 const cookieSession = require("cookie-session");
 
-// Global Functions
-function generateRandomString() {
-  const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = '';
-  for (let i = 0; i < 6; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-};
-
-function checkIfRegistered(email) {
-  for (let user in users) {
-    if (email === users[user].email) {
-      return users[user].id;
-    }
-  } return false;
-}
-
-function urlsForUser(id) {
-  let userDataBaseURLs = {};
-  for (let url in urlDatabase) {
-    if (id === urlDatabase[url].userID) {
-      userDataBaseURLs[url] = urlDatabase[url];
-    }
-  }
-  return userDataBaseURLs;
-}
+const { generateRandomString, checkIfRegistered, urlsForUser } = require('./helpers')
 
 // Global Database
 const urlDatabase = {
@@ -88,7 +62,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const userDatabase = urlsForUser(req.session.user_id);
+  const userDatabase = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { 
     urls: userDatabase,
     user: users[req.session.user_id] 
@@ -107,7 +81,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const userDatabase = urlsForUser(req.session.user_id);
+  const userDatabase = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { 
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -152,7 +126,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.user_id;
-  const userUrls = urlsForUser(userID);
+  const userUrls = urlsForUser(userID, urlDatabase);
   if (Object.keys(userUrls).includes(req.params.shortURL)) {
     const shortURL = req.params.shortURL;
     delete urlDatabase[shortURL];
@@ -164,7 +138,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
-  const userUrls = urlsForUser(userID);
+  const userUrls = urlsForUser(userID, urlDatabase);
   if (Object.keys(userUrls).includes(req.params.id)) {
     const shortURL = req.params.id;
     urlDatabase[shortURL].longURL = req.body.newURL;
@@ -177,7 +151,7 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userID = checkIfRegistered(userEmail);
+  const userID = checkIfRegistered(userEmail, users);
   if (!userID) {
     res.send(403, "Unregistered email address");
   } else {
@@ -201,7 +175,7 @@ app.post("/register", (req, res) => {
   const userPassword = req.body.password;
   if (userEmail === '' || !userEmail || userPassword === '' || !userPassword) {
     res.send(400, "Invalid Username or Password");
-  } else if (checkIfRegistered(userEmail)){
+  } else if (checkIfRegistered(userEmail, users)){
     res.send(400, "Account already exists");
   }
   else(
@@ -211,7 +185,6 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(userPassword, 10)
     }
   );
-  console.log(users);
   req.session.user_id = userID;
   res.redirect('/urls');
 });
