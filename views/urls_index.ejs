@@ -26,7 +26,9 @@
       </thead>
       <tbody>
         <% if (!user) { %>
-          <td>Please <a href="/login">login</a> first or <a href="/register">register!</a></td>
+          <div class="alert alert-warning" role="alert">
+              Please <a href="/login">login</a> first or <a href="/register">register!</a>
+          </div>
         <% } else { %>
           <% for(let url in urls) { %>
             <tr>

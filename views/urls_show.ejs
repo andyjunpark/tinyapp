@@ -13,25 +13,26 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
+        <% if (!user) { %>
+          <div class="alert alert-warning" role="alert">
+            You can only edit your own links. Please <a href="/login">login</a> or <a href="/register">register</a>.
+          </div>
+        <% } else if (user.id !== loggedInID) { %>
+          <div class="alert alert-warning" role="alert">
+            You can only edit your own links.
+          </div>
+        <% } %>
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>" target="_blank"><%= shortURL %></a></p>
       </div>
     <div class="card-footer text-muted">
-      <% if (!user || loggedInID !== user.id) { %>
-        <h3>You can only edit your own URLs</h3>
-      <form>
-        <label for="newURL">New URL:</label>
-        <input type="text" name="newURL" placeholder="htttp://">
-        <button class="btn btn-primary" type="button" disabled>Submit</button>
       </form>
-      <% } else { %>
       <h3>Edit</h3>
       <form action="/urls/<%= shortURL %>" method="POST">
         <label for="newURL">New URL:</label>
         <input type="text" name="newURL" placeholder="htttp://">
         <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
       </form>
-      <% } %>
     </div>
   </div>
   <!-- Bootstrap JS -->

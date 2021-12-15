@@ -88,10 +88,12 @@ app.get("/urls/:shortURL", (req, res) => {
   const userDatabase = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { 
     shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[req.session.user_id],
-    loggedInID: userDatabase[req.params.shortURL].userID
+    longURL: urlDatabase[req.params.shortURL.longURL],
+    loggedInID: userDatabase[req.params.shortURL].userID,
+    user: users[req.session.user_id]
   };
+  console.log(templateVars.user.id)
+  console.log(templateVars.loggedInID)
   res.render("urls_show", templateVars);
 });
 
