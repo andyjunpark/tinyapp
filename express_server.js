@@ -86,13 +86,17 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const userDatabase = urlsForUser(req.session.user_id, urlDatabase);
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL.longURL],
-    loggedInID: userDatabase[req.params.shortURL].userID,
-    user: users[req.session.user_id]
-  };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+    const templateVars = { 
+      shortURL: req.params.shortURL, 
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      loggedInID: userDatabase[req.params.shortURL].userID,
+      user: users[req.session.user_id]
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(404).send("Invalid request");
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
