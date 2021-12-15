@@ -92,8 +92,6 @@ app.get("/urls/:shortURL", (req, res) => {
     loggedInID: userDatabase[req.params.shortURL].userID,
     user: users[req.session.user_id]
   };
-  console.log(templateVars.user.id)
-  console.log(templateVars.loggedInID)
   res.render("urls_show", templateVars);
 });
 
