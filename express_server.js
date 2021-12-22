@@ -90,7 +90,7 @@ app.get("/urls/:shortURL", (req, res) => {
     const templateVars = { 
       shortURL: req.params.shortURL, 
       longURL: urlDatabase[req.params.shortURL].longURL,
-      loggedInID: userDatabase[req.params.shortURL].userID,
+      loggedInID: urlDatabase[req.params.shortURL].userID,
       user: users[req.session.user_id]
     };
     res.render("urls_show", templateVars);
